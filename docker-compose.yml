@@ -1,0 +1,58 @@
+services:
+  app:
+    build:
+      context: ./frontend
+    ports:
+      - "8080:80"
+    networks:
+      - mynetwork
+
+  db:
+    image: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: toor
+      MYSQL_DATABASE: todo
+    volumes:
+      - mysqldata:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - mynetwork
+  
+  api:
+    image: nginx:stable-alpine
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - "8090:80"
+    depends_on:
+      - api1
+      - api2
+    networks:
+      - mynetwork
+
+  api1:
+    hostname: api1
+    build:
+      context: ./backend
+    depends_on:
+      - db
+    restart: always
+    networks:
+      - mynetwork
+  
+  api2:
+    hostname: api2
+    build:
+      context: ./backend
+    depends_on:
+      - db
+    restart: always
+    networks:
+      - mynetwork
+
+volumes:
+  mysqldata:
+
+networks:
+  mynetwork:
