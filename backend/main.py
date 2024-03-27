@@ -7,8 +7,7 @@ from pydantic import BaseModel
 import socket
 
 
-app = FastAPI()
-
+app = FastAPI(title="Awesome Todo")
 
 MYSQL_HOST = os.getenv('MYSQL_HOST', 'db')
 MYSQL_USER = os.getenv('MYSQL_USER', 'root')
@@ -49,7 +48,7 @@ async def add_server_header(request: Request, call_next):
     response = await call_next(request)
     hostname = socket.gethostname()
     response.headers["X-SERVER"] = hostname
-
+    print(f"{request.method} {request.url}")
     return response
 
 @app.get("/todo", response_model=List[Todo])
